@@ -1,5 +1,4 @@
-// MainActivity.kt
-package com.example.myaihelper
+package net.nicochristmann.AIAutomationAssistant
 
 import android.content.Intent
 import android.os.Bundle
