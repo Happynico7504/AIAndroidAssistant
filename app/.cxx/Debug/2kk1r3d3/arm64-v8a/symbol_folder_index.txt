@@ -1,0 +1,1 @@
+/home/nico/software-development/AIAndroidAssistant/app/build/intermediates/cxx/Debug/2kk1r3d3/obj/arm64-v8a

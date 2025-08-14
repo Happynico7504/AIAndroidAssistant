@@ -1,58 +1,73 @@
 package net.nicochristmann.AIAutomationAssistant
 
+import android.annotation.SuppressLint
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import kotlin.concurrent.thread
+import androidx.core.content.ContextCompat
+import kotlinx.coroutines.*
 
-class AudioController {
+class AudioController(private val context: Context) {
 
     private val sampleRate = 32000
-    private val channelConfig = AudioFormat.CHANNEL_IN_STEREO
+    private val channelConfig = AudioFormat.CHANNEL_IN_MONO // safer across devices
+    private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
     private val bufferSize = AudioRecord.getMinBufferSize(
         sampleRate,
         channelConfig,
-        AudioFormat.ENCODING_PCM_16BIT
+        audioFormat
     )
 
-    private val recorder = AudioRecord(
-        MediaRecorder.AudioSource.MIC,
-        sampleRate,
-        channelConfig,               // stereo input
-        AudioFormat.ENCODING_PCM_16BIT,
-        bufferSize
-    )
+    private var recorder: AudioRecord? = null
+    private var recordingJob: Job? = null
 
-    @Volatile
-    private var isRecording = false
+    /** Check if RECORD_AUDIO permission is granted */
+    fun hasAudioPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
-    /**
-     * Start recording audio frames.
-     * @param onAudioFrame Callback for each captured frame.
-     */
+    /** Start recording audio frames with coroutine */
     fun startRecording(onAudioFrame: (ShortArray) -> Unit) {
-        if (isRecording) return
-        isRecording = true
-        thread {
-            recorder.startRecording()
+        if (!hasAudioPermission()) {
+            throw SecurityException("RECORD_AUDIO permission not granted")
+        }
+
+        if (recordingJob?.isActive == true) return
+        @SuppressLint("MissingPermission")
+        recorder = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            sampleRate,
+            channelConfig,
+            audioFormat,
+            bufferSize
+        )
+
+        recorder?.startRecording()
+
+        recordingJob = CoroutineScope(Dispatchers.IO).launch {
             val buffer = ShortArray(bufferSize)
-            while (isRecording) {
-                val read = recorder.read(buffer, 0, buffer.size)
+            while (isActive) {
+                val read = recorder?.read(buffer, 0, buffer.size) ?: 0
                 if (read > 0) onAudioFrame(buffer.copyOf(read))
             }
-            recorder.stop()
         }
     }
 
     /** Stop recording safely */
     fun stop() {
-        isRecording = false
+        recordingJob?.cancel()
+        recorder?.stop()
+        recorder?.release()
+        recorder = null
     }
 
-    /**
-     * Optional: Downmix stereo buffer to mono
-     * Useful if your AI model expects mono audio
-     */
+    /** Optional: Downmix stereo to mono if needed */
     fun downmixStereoToMono(input: ShortArray): ShortArray {
         val mono = ShortArray(input.size / 2)
         for (i in mono.indices) {

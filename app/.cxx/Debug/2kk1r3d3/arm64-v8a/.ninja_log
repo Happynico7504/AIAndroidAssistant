@@ -1,0 +1,3 @@
+# ninja log v5
+0	348	1755174641654910337	CMakeFiles/llm_jni.dir/llm_jni.cpp.o	c5fc3292645bf308
+349	413	1755174641719910789	/home/nico/software-development/AIAndroidAssistant/app/build/intermediates/cxx/Debug/2kk1r3d3/obj/arm64-v8a/libllm_jni.so	433fad7fd85195c1
