@@ -1,5 +1,4 @@
-// BatteryManagerHelper.kt
-package com.example.myaihelper
+package net.nicochristmann.AIAutomationAssistant
 
 import android.content.Context
 import android.os.BatteryManager
