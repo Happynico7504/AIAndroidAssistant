@@ -1,0 +1,2 @@
+rootProject.name = "MyAIHelper"
+include ':app'
