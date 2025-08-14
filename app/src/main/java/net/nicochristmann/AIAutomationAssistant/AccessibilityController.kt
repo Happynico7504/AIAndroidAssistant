@@ -1,5 +1,4 @@
-// AccessibilityController.kt
-package com.example.myaihelper
+package net.nicochristmann.AIAutomationAssistant
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
