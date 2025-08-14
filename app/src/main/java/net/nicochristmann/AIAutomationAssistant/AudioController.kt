@@ -7,10 +7,10 @@ import kotlin.concurrent.thread
 
 class AudioController {
 
-    private val sampleRate = 16000
+    private val sampleRate = 32000
     private val bufferSize = AudioRecord.getMinBufferSize(
         sampleRate,
-        AudioFormat.CHANNEL_IN_MONO,
+        AudioFormat.CHANNEL_IN_STEREO,
         AudioFormat.ENCODING_PCM_16BIT
     )
 
