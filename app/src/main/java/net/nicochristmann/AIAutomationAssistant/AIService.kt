@@ -1,5 +1,4 @@
-// AIService.kt
-package com.example.myaihelper
+package net.nicochristmann.AIAutomationAssistant
 
 import android.app.Notification
 import android.app.NotificationChannel
